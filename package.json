@@ -3,8 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "socket.io": "~0.9.16",
+    "ejs": "^2.4.1",
     "express": "~3.2.6",
-    "jade": "~0.31.2"
+    "fs-extra": "^0.28.0",
+    "jade": "~0.31.2",
+    "lodash": "^4.11.1",
+    "socket.io": "~0.9.16"
   }
 }
