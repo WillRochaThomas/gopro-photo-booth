@@ -3,12 +3,12 @@
 <link rel="stylesheet" href="css/app.css" />
 <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
 
-<body ng-controller="AppCtrl">
-  <table id="wrapper">
-     <tr>
-        <td><show-image /></td>
-      </tr>
-  </table>
+<body ng-controller="AppCtrl" ng-class="{'flash': flash}">
+  <div class="flash"></div>
+  <div id="wrapper">
+    <div class="bg"></div>
+    <show-image />
+  </div>
 <script src="bower_components/angular/angular.js"></script>
 <script src="bower_components/jquery/dist/jquery.js"></script>
 <script src="bower_components/angular-socket-io/socket.js"></script>

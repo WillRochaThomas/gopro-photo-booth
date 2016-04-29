@@ -1,6 +1,25 @@
 'use strict';
 
 /* Controllers */
+var uniqueRandoms = [];
+
+function makeUniqueRandom(numRandoms) {
+    // refill the array if needed
+    if (!uniqueRandoms.length) {
+        for (var i = 0; i < numRandoms; i++) {
+            uniqueRandoms.push(i);
+        }
+    }
+    var index = Math.floor(Math.random() * uniqueRandoms.length);
+    var val = uniqueRandoms[index];
+
+    // now remove that value from the array
+    uniqueRandoms.splice(index, 1);
+
+    return val;
+
+}
+
 
 angular.module('myApp.controllers', []).
   controller('AppCtrl', function ($scope, socket, $interval, $timeout) {
@@ -9,12 +28,17 @@ angular.module('myApp.controllers', []).
     $scope.currentImage;
     $scope.hideImage = false;
     $scope.newFile = false;
+    $scope.showBG = false;
+    $scope.flash = false;
     socket.on('send:photos', function (data) {
       $scope.tempPhotos = data.photos;
       $scope.newFile = data.newFile;
       if ($scope.newFile) {
         $interval.cancel(intervalID);
         $scope.hideImage = true;
+        $scope.flash = true;
+        $('.flash').fadeIn(50);
+        $scope.currentImage = $scope.tempPhotos.length - 1;
         $timeout(function() {
           angular.forEach($scope.tempPhotos, function(item) {
             console.log('tick');
@@ -22,7 +46,6 @@ angular.module('myApp.controllers', []).
               $scope.photos.push(item);
             }
           });
-          $scope.currentImage = $scope.tempPhotos.length - 1;
           console.log($scope.photos, $scope.currentImage);
           startRandomizing();
         }, 100);
@@ -32,7 +55,10 @@ angular.module('myApp.controllers', []).
     function startRandomizing() {
       intervalID = $interval(function() {
         if ($scope.tempPhotos && $scope.tempPhotos.length > 0) {
-          $scope.currentImage = Math.floor(Math.random() * $scope.tempPhotos.length - 1);
+          $scope.showBG = true;
+          $timeout(function() {
+            $scope.currentImage = makeUniqueRandom($scope.tempPhotos.length);
+          }, 300);
           // angular.forEach($scope.tempPhotos, function(item) {
           //   if ($scope.photos.indexOf(item) === -1) {
           //     $scope.photos.push(item);

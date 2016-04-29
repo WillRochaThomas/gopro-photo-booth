@@ -27,11 +27,11 @@ module.exports = function (socket) {
       if (files.length > oldFiles.length) {
         oldFiles = files;
         newFile = true;
+        socket.emit('send:photos', {
+          photos: files,
+          newFile: newFile
+        });
       }
-      socket.emit('send:photos', {
-        photos: files,
-        newFile: newFile
-      });
     });
   }, 1000);
 };
