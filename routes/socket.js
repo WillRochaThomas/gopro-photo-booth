@@ -8,9 +8,8 @@ var fs = require('fs-extra');
 function getPhotos(cb) {
  fs.readdir('./public/linked-photos', function(err, files) {
    if (err) {
-     console.log('omg', err);
+     console.log('Error reading the photos directory - check permissions', err);
    } else {
-     console.log('aaa');
      cb(files)
    }
  });
@@ -27,6 +26,7 @@ module.exports = function (socket) {
       if (files.length > oldFiles.length) {
         oldFiles = files;
         newFile = true;
+        console.log('Someone has taken a photo!');
         socket.emit('send:photos', {
           photos: files,
           newFile: newFile

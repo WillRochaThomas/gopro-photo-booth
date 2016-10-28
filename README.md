@@ -1,24 +1,21 @@
-# Angular Socket.io Seed
+# TAB Photobooth
 
-Start an awesome app with AngularJS on the front, Socket.io + Express + Node on the back. This
-project is an application skeleton for writing [AngularJS](http://angularjs.org/) apps that use
-web sockets to add real-time functionality. If you're not planning on using web sockets, you
-should consider the [Angular Express Seed](https://github.com/btford/angular-express-seed) instead.
+Node app used at various events within a photo booth. It shows photos taken in the browser.
 
-The seed contains angular libraries, test libraries and a bunch of scripts all preconfigured for
-instant web development gratification. Just clone the repo (or download the zip/tarball) and
-you're ready to develop your application.
+The normal setup is:
 
-The seed app shows how to wire together Angular client-side components with Socket.io and Express
-on the server. It also illustrates writing angular partials/views with the Jade templating library.
+# [Adobe Lightroom](http://www.adobe.com/uk/products/photoshop-lightroom.html) is run on the computer and setup to save photos taken into a specific directory
+# This app is run, it includes two parts:
+## A backend using socket.io that constantly monitors the directory for new photos and notifies the frontend about them
+## An AngularJS front-end that cycles through all photos in the directory and displays them in browser. If a new photo is taken it animates to that before recommencing the cycling
 
-_Note: Although Jade supports interpolation, you should be doing that mostly on the client. Mixing
-server and browser templating will convolute your app. Instead, use Jade as a syntactic sugar for
-HTML, and let AngularJS take care of interpolation on the browser side._
 
-## How to use it
+## How to setup
 
-Clone the angular-socket-io-seed repository and start hacking!
+# Install [node](https://nodejs.org/en/download/)
+# By default the directory this expects photos to be saved into is ./public/linked-photos. 
+You can make ./public/linked-photos a [symlink](http://osxdaily.com/2015/08/06/make-symbolic-links-command-line-mac-os-x/) though to another directory if you prefer  
+# Run Lightroom and set it to store photos in the directory you configured above   
 
 ### Running the app
 
@@ -28,44 +25,38 @@ Runs like a typical express app:
 node app.js
 ```
 
-### Running tests
+### Updating libraries
 
-Coming soon!
-
-### Receiving updates from upstream
-
-Just fetch the changes and merge them into your project with git.
-
-### Updating `angular.js`
-
-Alternatively, you can update AngularJS with [Bower](http://bower.io):
+You can update AngularJS with [Bower](http://bower.io):
 
 ```shell
 bower update angular
 ```
 
-## Example Application
+You can update other libraries like Express using [NPM](http://bower.io):
 
-I created a [simple instant messaging application](https://github.com/btford/angular-socket-io-im)
-and wrote a [blog post](http://briantford.com/blog/angular-socket-io.html) walking through the app to
-illustrate using the seed.
+```shell
+npm update express
+```
+
+A description of the difference between bower and npm (and why this uses both) is here: http://stackoverflow.com/questions/18641899/what-is-the-difference-between-bower-and-npm
+
 
 ## Directory Layout
     
-    app.js                  --> app config
-    bower.json              --> for bower
-    package.json            --> for npm
-    public/                 --> all of the files to be used in on the client side
+    app.js                  --> bootstraps the application
+    bower.json              --> bower config
+    package.json            --> npm config
+    public/                 --> all of the source code and stylesheets
       css/                  --> css files
-        app.css             --> default stylesheet
-      img/                  --> image files
+        app.css             --> default stylesheet      
       js/                   --> javascript files
         app.js              --> declare top-level app module
         controllers.js      --> application controllers
         directives.js       --> custom angular directives
         filters.js          --> custom angular filters
         services.js         --> custom angular services
-      bower_components/
+      bower_components/     --> installed bower packages
         angular/            --> angular.js
         angular-socket-io/  --> socket.io adapter for angular
     routes/
@@ -73,14 +64,10 @@ illustrate using the seed.
     views/
       index.jade            --> main page for app
       layout.jade           --> doctype, title, head boilerplate
-      partials/             --> angular view partials (partial jade templates)
-        partial1.jade
-        partial2.jade
+      partials/             --> angular view partials (partial jade templates)        
 
 
 
-## Contact
+## Need help?
 
-For more information on AngularJS please check out http://angularjs.org/
-For more on Express and Jade, http://expressjs.com/ and http://jade-lang.com/ are
-your friends.
+Jason Turner, Will Thomas and Ahmet Atasoy have worked with this before.
