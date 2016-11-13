@@ -19,7 +19,6 @@ Before you start, take a moment to see how the project structure looks like:
 ├── /node_modules/              # 3rd-party libraries and utilities
 ├── /src/                       # The source code of the application
 │   ├── /components/            # React components
-│   ├── /content/               # Static pages like About Us, Privacy Policy etc.
 │   ├── /core/                  # Core framework and utility functions
 │   ├── /public/                # Static files which are copied into the /build/public folder
 │   ├── /routes/                # Page/screen components along with the routing information
