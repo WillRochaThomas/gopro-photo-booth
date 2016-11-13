@@ -21,7 +21,6 @@ Before you start, take a moment to see how the project structure looks like:
 │   ├── /components/            # React components
 │   ├── /content/               # Static pages like About Us, Privacy Policy etc.
 │   ├── /core/                  # Core framework and utility functions
-│   ├── /data/                  # GraphQL server schema and data models
 │   ├── /public/                # Static files which are copied into the /build/public folder
 │   ├── /routes/                # Page/screen components along with the routing information
 │   ├── /client.js              # Client-side startup script
@@ -99,14 +98,3 @@ To check the source code for syntax errors and potential issues run:
 ```shell
 $ npm run lint
 ```
-
-To launch unit tests:
-
-```shell
-$ npm test              # Run unit tests with Mocha
-$ npm run test:watch    # Launch unit test runner and start watching for changes
-```
-
-By default, [Mocha](https://mochajs.org/) test runner is looking for test files
-matching the `src/**/*.test.js` pattern. Take a look at `src/components/Layout/Layout.test.js`
-as an example.
