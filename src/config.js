@@ -11,3 +11,5 @@
 
 export const port = process.env.PORT || 3000;
 export const host = process.env.WEBSITE_HOSTNAME || `localhost:${port}`;
+export const photosDirectory = 'photos';
+export const arduinoSerialName = '';

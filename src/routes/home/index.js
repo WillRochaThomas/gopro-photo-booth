@@ -9,17 +9,25 @@
 
 import React from 'react';
 import Home from './Home';
+import fetch from '../../core/fetch';
 import Layout from '../../components/Layout';
 
 export default {
 
   path: '/',
 
-  action() {
+  async action() {
+    const resp = await fetch('/api/photos', {
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+    const data = await resp.json();
+
+    if (!data) throw new Error('Failed to load the photos.');
     return {
-      title: 'React Starter Kit',
-      component: <Layout><Home /></Layout>,
+      title: 'Photo Booth',
+      component: <Layout><Home photos={data} /></Layout>,
     };
   },
-
 };

@@ -15,13 +15,16 @@ import React from 'react';
 import ReactDOM from 'react-dom/server';
 import UniversalRouter from 'universal-router';
 import PrettyError from 'pretty-error';
+import fs from 'fs';
+import io from 'socket.io';
+import serialport from 'serialport';
 import App from './components/App';
 import Html from './components/Html';
 import { ErrorPageWithoutStyle } from './routes/error/ErrorPage';
 import errorPageStyle from './routes/error/ErrorPage.css';
 import routes from './routes';
 import assets from './assets'; // eslint-disable-line import/no-unresolved
-import { port } from './config';
+import { port, photosDirectory, arduinoSerialName } from './config';
 
 const app = express();
 
@@ -38,6 +41,18 @@ global.navigator.userAgent = global.navigator.userAgent || 'all';
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+app.get('/api/photos', async (req, res) => {
+  fs.readdir(`./src/public/${photosDirectory}`, (error, files) => {
+    if (error) {
+      console.error('Could not read photos directory'); // eslint-disable-line no-console
+      res.status(500).send({ error: 'Something failed!' });
+    }
+
+    const fullUrls = files.map(file => `/${photosDirectory}/${file}`);
+    res.json(fullUrls);
+  });
+});
 
 // Register server-side rendering middleware
 // -----------------------------------------------------------------------------
@@ -106,7 +121,30 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
 // Launch the server
 // -----------------------------------------------------------------------------
 /* eslint-disable no-console */
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`The server is running at http://localhost:${port}/`);
 });
 /* eslint-enable no-console */
+
+const socketServer = io(server);
+
+const arduinoPortConfig = {
+  baudRate: 9600,
+  // call .on('data') when a newline is received:
+  parser: serialport.parsers.readline('\n'),
+};
+
+const arduinoSerialPort = new serialport.SerialPort(arduinoSerialName, arduinoPortConfig);
+
+function openSocket(socket){
+  console.log(`new user address: ${socket.handshake.address}`); // eslint-disable-line no-console
+  socket.emit('message', `Hello ${socket.handshake.address}`);
+
+  arduinoSerialPort.on('data', (data) => {
+    socket.emit('message', data);
+  });
+}
+
+
+socketServer.on('connection', openSocket);
+

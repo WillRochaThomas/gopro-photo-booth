@@ -7,21 +7,44 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import s from './Home.css';
 
 class Home extends React.Component {
+  static propTypes = {
+    photos: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
+  };
+
+  constructor(props, context) {
+    super(props, context);
+    this.state = {
+      currentPhotoIndex: 0,
+      currentPhoto: this.props.photos[0],
+    };
+
+    setInterval(() => {
+      let nextIndex = 0;
+      if (this.state.currentPhotoIndex + 1 < this.props.photos.length) {
+        nextIndex = this.state.currentPhotoIndex + 1;
+      }
+
+      this.setState({
+        currentPhotoIndex: nextIndex,
+        currentPhoto: this.props.photos[nextIndex],
+      });
+    }, 3000);
+  }
 
   render() {
+    const divStyle = {
+      backgroundImage: `url(${this.state.currentPhoto})`,
+    };
+
+
     return (
       <div className={s.root}>
-        <div className={s.container}>
-          <h1 className={s.title}>React.js News</h1>
-          <ul className={s.news}>
-            Some news
-          </ul>
-        </div>
+        <div className={s.container} style={divStyle} />
       </div>
     );
   }
