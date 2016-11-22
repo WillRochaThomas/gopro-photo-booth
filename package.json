@@ -11,6 +11,7 @@
     "body-parser": "1.15.2",
     "classnames": "2.2.5",
     "core-js": "2.4.1",
+    "cors": "^2.8.1",
     "express": "4.14.0",
     "fastclick": "1.0.6",
     "front-matter": "2.1.0",
@@ -21,13 +22,15 @@
     "normalize.css": "5.0.0",
     "pretty-error": "2.0.2",
     "query-string": "4.2.3",
-    "react": "15.3.2",
-    "react-dom": "15.3.2",
+    "react": "^15.4.0",
+    "react-dom": "^15.4.0",
     "serialport": "^4.0.6",
     "socket.io": "^1.5.1",
+    "socket.io-client": "^1.5.1",
     "source-map-support": "0.4.6",
     "universal-router": "2.0.0",
-    "whatwg-fetch": "1.0.0"
+    "whatwg-fetch": "1.0.0",
+    "wifi-control": "^2.0.0"
   },
   "devDependencies": {
     "assets-webpack-plugin": "^3.5.0",

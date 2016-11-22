@@ -10,23 +10,39 @@
 import 'babel-polyfill';
 import path from 'path';
 import express from 'express';
+import cors from 'cors';
 import bodyParser from 'body-parser';
+import EventEmitter from 'events';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import UniversalRouter from 'universal-router';
 import PrettyError from 'pretty-error';
 import fs from 'fs';
 import io from 'socket.io';
-import serialport from 'serialport';
+import SerialPort from 'serialport';
+import WiFiControl from 'wifi-control';
+import GoProApi from './GoProApi';
+import PressHandler from './PressHandler';
 import App from './components/App';
 import Html from './components/Html';
 import { ErrorPageWithoutStyle } from './routes/error/ErrorPage';
 import errorPageStyle from './routes/error/ErrorPage.css';
 import routes from './routes';
 import assets from './assets'; // eslint-disable-line import/no-unresolved
-import { port, photosDirectory, arduinoSerialName } from './config';
+import { port, photosDirectory, arduinoSerialName, clientOrigin, goProWifiSSID } from './config';
+
+EventEmitter.defaultMaxListeners = 15;
 
 const app = express();
+const relativePathToPhotos = `./src/public/${photosDirectory}`;
+
+const corsOptions = {
+  origin: clientOrigin,
+  methods: ['GET', 'PUT', 'POST'],
+  allowedHeaders: ['Accept', 'Authorization', 'Content-Type'],
+};
+
+app.use(cors(corsOptions));
 
 //
 // Tell any CSS tooling (such as Material UI) to use all vendor prefixes if the
@@ -43,14 +59,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.get('/api/photos', async (req, res) => {
-  fs.readdir(`./src/public/${photosDirectory}`, (error, files) => {
+  fs.readdir(relativePathToPhotos, (error, files) => {
     if (error) {
       console.error('Could not read photos directory'); // eslint-disable-line no-console
       res.status(500).send({ error: 'Something failed!' });
     }
 
-    const fullUrls = files.map(file => `/${photosDirectory}/${file}`);
-    res.json(fullUrls);
+    const onlyImages = files.filter(filename => (/\.(gif|jpg|jpeg|tiff|png)$/i).test(filename));
+    const fullImageUrls = onlyImages.map(filename => `/${photosDirectory}/${filename}`);
+    res.json(fullImageUrls);
   });
 });
 
@@ -126,25 +143,62 @@ const server = app.listen(port, () => {
 });
 /* eslint-enable no-console */
 
-const socketServer = io(server);
-
 const arduinoPortConfig = {
   baudRate: 9600,
   // call .on('data') when a newline is received:
-  parser: serialport.parsers.readline('\n'),
+  parser: SerialPort.parsers.readline('\n'),
 };
 
-const arduinoSerialPort = new serialport.SerialPort(arduinoSerialName, arduinoPortConfig);
+const arduinoSerialPort = new SerialPort(arduinoSerialName, arduinoPortConfig);
 
-function openSocket(socket){
+function onPortClose() {
+  console.log('Port is closed'); // eslint-disable-line no-console
+}
+
+function onPortError() {
+  console.log('Error reading from port'); // eslint-disable-line no-console
+}
+
+arduinoSerialPort.on('close', onPortClose);
+arduinoSerialPort.on('error', onPortError);
+
+const goProApi = new GoProApi();
+
+function onSocketOpen(socket) {
   console.log(`new user address: ${socket.handshake.address}`); // eslint-disable-line no-console
-  socket.emit('message', `Hello ${socket.handshake.address}`);
+
+  const pressHandler = new PressHandler(socket, goProApi, relativePathToPhotos);
 
   arduinoSerialPort.on('data', (data) => {
-    socket.emit('message', data);
+    console.log(`received data from arduino: ${data}`); // eslint-disable-line no-console
+    pressHandler.handlePress();
   });
 }
 
+const socketServer = io(server, { origins: clientOrigin });
+socketServer.sockets.setMaxListeners(0);
+socketServer.on('connection', onSocketOpen);
 
-socketServer.on('connection', openSocket);
+WiFiControl.init({});
 
+function confirmConnectedToGoProNetwork() {
+  const wifiState = WiFiControl.getIfaceState();
+  console.log(`wifi state ${wifiState}`); // eslint-disable-line no-console
+
+  if (wifiState && wifiState.ssid === goProWifiSSID) {
+    console.log('already connected to right wifi network, nothing to do'); // eslint-disable-line no-console
+    return;
+  }
+
+  WiFiControl.connectToAP(goProWifiSSID, (error, response) => {
+    if (error) {
+      console.error(error); // eslint-disable-line no-console
+    } else {
+      console.log(response);  // eslint-disable-line no-console
+    }
+  });
+}
+
+confirmConnectedToGoProNetwork();
+const fiveMinutesInMs = 300000;
+setInterval(confirmConnectedToGoProNetwork, fiveMinutesInMs);

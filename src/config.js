@@ -11,5 +11,7 @@
 
 export const port = process.env.PORT || 3000;
 export const host = process.env.WEBSITE_HOSTNAME || `localhost:${port}`;
+export const clientOrigin = 'http://localhost:3001';
 export const photosDirectory = 'photos';
-export const arduinoSerialName = '';
+export const arduinoSerialName = '/dev/tty.usbmodem1421';
+export const goProWifiSSID = 'withomas214';
