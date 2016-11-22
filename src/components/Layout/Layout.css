@@ -24,7 +24,7 @@ html {
   font-family: var(--font-family-base);
   line-height: 1.375; /* ~22px */
   height: 100%;
-  margin: 0px auto;
+  margin: 0 auto;
   padding: 0;
 }
 
