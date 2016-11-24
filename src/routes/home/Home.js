@@ -37,13 +37,16 @@ class Home extends React.Component {
     super(props, context);
 
     let currentPhoto;
+    let message = '';
     if (this.props.photos.length > 1) {
       currentPhoto = this.props.photos[this.props.photos.length - 1];
+    } else {
+      message = 'Push the button to take a picture';
     }
 
     this.state = {
       currentPhoto,
-      message: '',
+      message,
       flash: false,
     };
 
