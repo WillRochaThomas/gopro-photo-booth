@@ -22,7 +22,7 @@ import io from 'socket.io';
 import SerialPort from 'serialport';
 import WiFiControl from 'wifi-control';
 import GoProApi from './GoProApi';
-import PressHandler from './PressHandler';
+import DataReceivedAction from './DataReceivedAction';
 import App from './components/App';
 import Html from './components/Html';
 import { ErrorPageWithoutStyle } from './routes/error/ErrorPage';
@@ -159,19 +159,25 @@ function onPortError() {
   console.log('Error reading from port'); // eslint-disable-line no-console
 }
 
+async function dataReceivedFromArduino(data, action) {
+  await arduinoSerialPort.flush();
+  console.log(`received data from arduino: ${data}`); // eslint-disable-line no-console
+  action.trigger();
+}
+
 arduinoSerialPort.on('close', onPortClose);
 arduinoSerialPort.on('error', onPortError);
+arduinoSerialPort.flush();
 
 const goProApi = new GoProApi();
 
 function onSocketOpen(socket) {
   console.log(`new user address: ${socket.handshake.address}`); // eslint-disable-line no-console
 
-  const pressHandler = new PressHandler(socket, goProApi, relativePathToPhotos);
+  const dataReceivedAction = new DataReceivedAction(socket, goProApi, relativePathToPhotos);
 
   arduinoSerialPort.on('data', (data) => {
-    console.log(`received data from arduino: ${data}`); // eslint-disable-line no-console
-    pressHandler.handlePress();
+    dataReceivedFromArduino(data, dataReceivedAction);
   });
 }
 
@@ -181,16 +187,23 @@ socketServer.on('connection', onSocketOpen);
 
 WiFiControl.init({});
 
-function confirmConnectedToGoProNetwork() {
+function confirmConnectedToNetwork(wifiSSID) {
   const wifiState = WiFiControl.getIfaceState();
-  console.log(`wifi state ${wifiState}`); // eslint-disable-line no-console
+  console.log(`checking connected to ${wifiSSID}`); // eslint-disable-line no-console
+  console.log(`wifi state ${JSON.stringify(wifiState)}`); // eslint-disable-line no-console
 
-  if (wifiState && wifiState.ssid === goProWifiSSID) {
+  if (wifiState.connection === 'connected' && wifiState.ssid === wifiSSID) {
     console.log('already connected to right wifi network, nothing to do'); // eslint-disable-line no-console
     return;
   }
 
-  WiFiControl.connectToAP(goProWifiSSID, (error, response) => {
+  console.log(`connecting to ${wifiSSID} wifi network`); // eslint-disable-line no-console
+
+  const wifiDetails = {
+    ssid: wifiSSID,
+  };
+
+  WiFiControl.connectToAP(wifiDetails, (error, response) => {
     if (error) {
       console.error(error); // eslint-disable-line no-console
     } else {
@@ -199,6 +212,7 @@ function confirmConnectedToGoProNetwork() {
   });
 }
 
-confirmConnectedToGoProNetwork();
+console.log(`wifi SSID ${goProWifiSSID}`); // eslint-disable-line no-console
+confirmConnectedToNetwork(goProWifiSSID);
 const fiveMinutesInMs = 300000;
-setInterval(confirmConnectedToGoProNetwork, fiveMinutesInMs);
+setInterval(() => { confirmConnectedToNetwork(goProWifiSSID); }, fiveMinutesInMs);

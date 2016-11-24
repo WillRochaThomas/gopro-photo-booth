@@ -5,9 +5,22 @@ class GoProApi {
     this.camera = new GoPro.Camera();
   }
 
+  async numberPhotos() {
+    const result = await this.camera.listMedia();
+    let numberOfPics = 0;
+
+    result.media.forEach((directory) => {
+      directory.fs.forEach(() => {
+        numberOfPics += 1;
+      });
+    });
+
+    return numberOfPics;
+  }
+
   takePhoto() {
-    this.enableCameraMode().bind(this);
-    this.trigger().bind(this);
+    this.enableCameraMode();
+    this.trigger();
   }
 
   enableCameraMode() {
@@ -18,15 +31,12 @@ class GoProApi {
     this.camera.start();
   }
 
-  saveLastPictureTo(targetDirectory, successCallback, errorCallback) {
-    this.camera.listMedia().then((result) => {
-      const lastDirectory = result.media[result.media.length - 1];
-      const lastFile = lastDirectory.fs[lastDirectory.fs.length - 1];
+  async saveLastPictureTo(targetDirectory) {
+    const result = await this.camera.listMedia();
+    const lastDirectory = result.media[result.media.length - 1];
+    const lastFile = lastDirectory.fs[lastDirectory.fs.length - 1];
 
-      this.camera.getMedia(lastDirectory.d, lastFile.n, `${targetDirectory}/${lastFile.n}`).then((filename) => {
-        successCallback(filename);
-      }, errorCallback);
-    }, errorCallback);
+    return await this.camera.getMedia(lastDirectory.d, lastFile.n, `${targetDirectory}/${lastFile.n}`);
   }
 }
 

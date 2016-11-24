@@ -29,6 +29,10 @@ class Home extends React.Component {
     history.push(history.location.pathname);
   }
 
+  static stringIsEmpty(string) {
+    return typeof string === 'undefined' || string == null || string.toString().trim().length === 0;
+  }
+
   constructor(props, context) {
     super(props, context);
 
@@ -89,7 +93,7 @@ class Home extends React.Component {
 
   flash() {
     console.log('flash requested'); // eslint-disable-line no-console
-    this.setState({ flash: true, message: '' });
+    this.setState({ flash: true });
     setTimeout(this.removeFlash, 400);
   }
 
@@ -102,10 +106,9 @@ class Home extends React.Component {
     let containerStyle = {};
     let flashStyle = s.flashHide;
 
-
     if (this.state.flash) {
       flashStyle = s.flashShow;
-    } else if (!this.state.message) {
+    } else if (this.constructor.stringIsEmpty(this.state.message)) {
       containerStyle = { backgroundImage: `url(${this.state.currentPhoto})` };
     }
 
