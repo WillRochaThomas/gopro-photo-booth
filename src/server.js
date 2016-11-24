@@ -160,7 +160,7 @@ function onPortError() {
 }
 
 async function dataReceivedFromArduino(data, action) {
-  await arduinoSerialPort.flush();
+  arduinoSerialPort.flush();
   console.log(`received data from arduino: ${data}`); // eslint-disable-line no-console
   action.trigger();
 }
