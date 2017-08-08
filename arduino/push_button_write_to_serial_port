@@ -1,0 +1,34 @@
+/*
+ Write data to Serial port, every time a button is pressed.
+ Any program reading from the port can then take action.
+
+ This has been developed as input for a photo booth.
+ A button is pressed, data is written, a connected application then
+ takes a photo.
+ */
+
+const int pinButtonConnectedTo = 2;
+const int buttonStateAfterPress = 0;
+int previousButtonState = 1;
+int currentButtonState = 1;
+
+
+void setup() {
+  pinMode(pinButtonConnectedTo, INPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  int currentButtonState = digitalRead(pinButtonConnectedTo);
+  int pauseUntilNext = 10;
+
+  if (currentButtonState == buttonStateAfterPress &&
+      currentButtonState != previousButtonState) {
+     Serial.println(1);
+     Serial.flush();
+     pauseUntilNext = 1000;
+  }
+
+  previousButtonState = currentButtonState;
+  delay(pauseUntilNext);
+}

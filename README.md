@@ -1,36 +1,41 @@
-## React Starter Kit — "[isomorphic](http://nerds.airbnb.com/isomorphic-javascript-future-web-apps/)" web app boilerplate
+# GoPro Photo Booth
 
-> [React Starter Kit](https://www.reactstarterkit.com) is an opinionated
-> boilerplate for web development built on top of [Node.js](https://nodejs.org/),
-> [Express](http://expressjs.com/) and [React](https://facebook.github.io/react/), 
-> containing modern web development tools such as 
-> [Webpack](http://webpack.github.io/), [Babel](http://babeljs.io/)
-> and [Browsersync](http://www.browsersync.io/). Helping you to stay productive
-> following the best practices. A solid starting point for both professionals
-> and newcomers to the industry.
+A web-based photo booth that is designed to work in conjunction with an Arduino and a GoPro camera.
 
+This was built on top of [Kriasoft's react starter kit](https://github.com/kriasoft/react-starter-kit)
 
-### Getting Started
+This was written as throw-away code, so there are no tests and it's a little hacky.
 
-  * Follow the [getting started guide](./docs/getting-started.md) to download and run the project    
+## How it works
 
+1. a physical button is pressed
+1. the arduino writes a '1' to serial port
+1. this application is listening on the serial port and detects data being written
+1. the application triggers a countdown using a websocket to communicate with the code running in browser and trigger it to update the view
+1. the application issues http calls to the webserver running on the GoPro which trigger it to enable camera mode and take a picture
+1. when pictures aren't being taken, the application cycles through photos already taken and shows those in the browser   
 
-### Learn More
+## How to run this web app
 
-  * [Getting Started with React.js](http://facebook.github.io/react/)
-  * [React.js Questions on StackOverflow](http://stackoverflow.com/questions/tagged/reactjs)
-  * [React.js Discussion Board](https://discuss.reactjs.org/)
-  * [Flux Architecture for Building User Interfaces](http://facebook.github.io/flux/)
-  * [Enzyme — JavaScript Testing utilities for React](http://airbnb.io/enzyme/)
-  * [Flow — A static type checker for JavaScript](http://flowtype.org/)
-  * [The Future of React](https://github.com/reactjs/react-future)
-  * [Learn ES6](https://babeljs.io/docs/learn-es6/), [ES6 Features](https://github.com/lukehoban/es6features#readme)
+`npm install` #installs dependencies
+`npm start` #runs the application
 
 
+## What else it needs (arduino and GoPro)
 
-### License
+* install the [Arduino Desktop IDE](https://www.arduino.cc/en/Guide/ArduinoUno)
+* the sketch file containing the code run on the arduino is committed in the `arduino` directory of this repository. This needs to be loaded onto the Arduino
+* The arduino code assumes a button is connected to pin 2 and when the button is pressed the pin state goes from 1 (on) to 0 (off).
+* A GoPro should be switched on with Wifi enabled (I used a Hero 4)
 
-Copyright © 2014-2016 Kriasoft, LLC. This source code is licensed under the MIT
-license found in the [LICENSE.txt](https://github.com/kriasoft/react-starter-kit/blob/master/LICENSE.txt)
-file. The documentation to the project is licensed under the
-[CC BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/) license.
+There is a config file in `src/config` where you can change: 
+
+* the application port, 
+* the directory it saves photos to and reads them from, 
+* the name of the arduino serial port, and 
+* the name of the wifi network your gopro exposes.
+ 
+
+   
+
+
